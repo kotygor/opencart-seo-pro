@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>SEO Pro (by opencart3x.ru)</name>
+	<code>seo_pro</code>
+    <version>1.2</version>
+    <author>opencart3x.ru</author>
+    <link>https://opencart3x.ru</link>
+    
+	<file path="system/config/catalog.php">
+		<operation error="abort">
+			<search><![CDATA[
+                $_['action_pre_action']
+            ]]></search>
+			<add position="before"><![CDATA[
+                $registry = new Registry(); $db = new DB(DB_DRIVER, DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE); $registry->set('db', $db);
+            	$query = $db->query("SELECT value FROM " . DB_PREFIX . "setting WHERE store_id = '0' AND `key`='config_seo_url_type'");
+            	$seo_type = $query->row['value'];
+            	if (!$seo_type) {  $seo_type = 'seo_url';  }
+			]]></add>
+		</operation>
+		<operation error="abort">
+			<search><![CDATA['startup/seo_url']]></search>
+			<add position="replace"><![CDATA['startup/'.$seo_type]]></add>
+		</operation>
+	</file>
+
+    <file path="admin/controller/setting/setting.php">
+        <operation error="log">
+            <search><![CDATA[
+                if (isset($this->request->post['config_file_max_size'])) {
+            ]]></search>
+            <add position="before"><![CDATA[
+                $qu = $this->db->query("DESCRIBE " . DB_PREFIX . "product_to_category `main_category`");
+                if ($qu->num_rows == 0) {
+                    $this->db->query("ALTER TABLE " . DB_PREFIX ."product_to_category ADD `main_category` tinyint(1) COLLATE utf8_general_ci NOT NULL DEFAULT '0' AFTER `category_id`");
+                }
+                if (isset($this->request->post['config_seo_url_type'])) {
+        			$data['config_seo_url_type'] = $this->request->post['config_seo_url_type'];
+        		} elseif ($this->config->get('config_seo_url_type')) {
+        			$data['config_seo_url_type'] = $this->config->get('config_seo_url_type');
+        		} else {
+        			$data['config_seo_url_type'] = 'seo_url';
+        		}
+
+        		$data['seo_types'] = array();
+        		$data['seo_types'][] = array('type' => 'seo_url', 'name' => $this->language->get('text_seo_url'));
+        		$data['seo_types'][] = array('type' => 'seo_pro', 'name' => $this->language->get('text_seo_pro'));
+
+        		if (isset($this->request->post['config_seo_url_include_path'])) {
+        			$data['config_seo_url_include_path'] = $this->request->post['config_seo_url_include_path'];
+        		} else {
+        			$data['config_seo_url_include_path'] = $this->config->get('config_seo_url_include_path');
+        		}
+
+        		if (isset($this->request->post['config_seo_url_postfix'])) {
+        			$data['config_seo_url_postfix'] = $this->request->post['config_seo_url_postfix'];
+        		} else {
+        			$data['config_seo_url_postfix'] = $this->config->get('config_seo_url_postfix');
+        		}
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/language/en-gb/setting/setting.php">
+        <operation>
+            <search><![CDATA[$_['entry_meta_title']]]></search>
+            <add position="before"><![CDATA[
+                $_['text_seo_url']					   = 'Default';
+                $_['text_seo_pro']					   = 'SEO PRO';
+                $_['entry_seo_url_type']			   = 'SEO type:';
+                $_['entry_seo_url_include_path']	   = 'SEO with categories:';
+                $_['entry_seo_url_include_path_help']  = '/category/subcategory/product';
+                $_['entry_seo_url_postfix']			   = 'SEO postfix';
+                $_['entry_seo_url_postfix_help']	   = 'Example as .html';
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/language/ru-ru/setting/setting.php">
+        <operation>
+            <search><![CDATA[$_['entry_meta_title']]]></search>
+            <add position="before"><![CDATA[
+                $_['text_seo_url']					   = 'По умолчанию';
+                $_['text_seo_pro']					   = 'SEO PRO';
+                $_['entry_seo_url_type']			   = 'Тип ЧПУ:';
+                $_['entry_seo_url_include_path']	   = 'ЧПУ товаров с категориями:';
+                $_['entry_seo_url_include_path_help']  = '/category/subcategory/product';
+                $_['entry_seo_url_postfix']			   = 'Окончание ЧПУ';
+                $_['entry_seo_url_postfix_help']	   = 'Например .html';
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/view/template/setting/setting.twig">
+        <operation error="log">
+            <search><![CDATA[
+                <label class="col-sm-2 control-label" for="input-robots"><span data-toggle="tooltip" title="{{ help_robots }}">{{ entry_robots }}</span></label>
+            ]]></search>
+            <add position="before" offset="1"><![CDATA[
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="config_seo_url_type">{{ entry_seo_url_type }}</label>
+                  <div class="col-sm-10">
+                  <select id="config_seo_url_type" class="form-control" name="config_seo_url_type">
+                    {% for seo_type in seo_types %}
+                      {% if seo_type.type == config_seo_url_type %}
+                        <option value="{{ seo_type.type }}" selected="selected">{{ seo_type.name }}</option>
+                      {% else %}
+                        <option value="{{ seo_type.type }}">{{ seo_type.name }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label"><span data-toggle="tooltip" title="{{ entry_seo_url_include_path_help }}">{{ entry_seo_url_include_path }}</span></label>
+                  <div class="col-sm-10">
+                  {% if config_seo_url_include_path %}
+                    <label class="radio-inline">
+                    <input type="radio" name="config_seo_url_include_path" value="1" checked="checked"/>
+                    {{ text_yes }}
+                    </label>
+                    <label class="radio-inline">
+                    <input type="radio" name="config_seo_url_include_path" value="0"/>
+                    {{ text_no }}
+                    </label>
+                  {% else %}
+                    <label class="radio-inline">
+                    <input type="radio" name="config_seo_url_include_path" value="1"/>
+                    {{ text_yes }}
+                    </label>
+                    <label class="radio-inline">
+                    <input type="radio" name="config_seo_url_include_path" value="0" checked="checked"/>
+                    {{ text_no }}
+                    </label>
+                  {% endif %}
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="config_seo_url_postfix"><span data-toggle="tooltip" title="{{ entry_seo_url_postfix_help }}">{{ entry_seo_url_postfix }}</span></label>
+                  <div class="col-sm-10">
+                  <input type="text" name="config_seo_url_postfix" value="{{ config_seo_url_postfix }}" id="config_seo_url_postfix" class="form-control"/>
+                  </div>
+                </div>
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/controller/catalog/product.php">
+        <operation error="log">
+            <search><![CDATA[$data['product_categories'] = array();]]></search>
+            <add position="before"><![CDATA[
+            if (isset($this->request->post['main_category_id'])) {
+                $data['main_category_id'] = $this->request->post['main_category_id'];
+            } elseif (isset($product_info)) {
+                $data['main_category_id'] = $this->model_catalog_product->getProductMainCategoryId($this->request->get['product_id']);
+            } else {
+                $data['main_category_id'] = 0;
+            }
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/language/en-gb/catalog/product.php">
+        <operation>
+            <search><![CDATA[$_['entry_name']]]></search>
+            <add position="after"><![CDATA[$_['entry_main_category']    = 'Main category:';]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/language/ru-ru/catalog/product.php">
+        <operation>
+            <search><![CDATA[$_['entry_name']]]></search>
+            <add position="after"><![CDATA[$_['entry_main_category']    = 'Главная категория:';]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/model/catalog/product.php">
+        <operation error="log">
+            <search><![CDATA[if (isset($data['product_related'])) {]]></search>
+            <add position="before"><![CDATA[        if(isset($data['main_category_id']) && $data['main_category_id'] > 0) {
+                        $this->db->query("DELETE FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int)$product_id . "' AND category_id = '" . (int)$data['main_category_id'] . "'");
+                        $this->db->query("INSERT INTO " . DB_PREFIX . "product_to_category SET product_id = '" . (int)$product_id . "', category_id = '" . (int)$data['main_category_id'] . "', main_category = 1");
+                    } elseif(isset($data['product_category'][0])) {
+                        $this->db->query("UPDATE " . DB_PREFIX . "product_to_category SET main_category = 1 WHERE product_id = '" . (int)$product_id . "' AND category_id = '" . (int)$data['product_category'][0] . "'");
+                    }]]></add>
+        </operation>
+        <operation error="log">
+            <search><![CDATA[public function getProductRelated($product_id) {]]></search>
+            <add position="before"><![CDATA[
+                public function getProductMainCategoryId($product_id) {
+                    $query = $this->db->query("SELECT category_id FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int)$product_id . "' AND main_category = '1' LIMIT 1");
+
+                    return ($query->num_rows ? (int)$query->row['category_id'] : 0);
+                }
+            ]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[$this->cache->delete('product');]]></search>
+            <add position="after"><![CDATA[
+               $this->cache->delete('seo_pro');
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/view/template/catalog/product_form.twig">
+        <operation error="log">
+            <search><![CDATA[<label class="col-sm-2 control-label" for="input-category"><span data-toggle="tooltip" title="{{ help_category }}">{{ entry_category }}</span></label>]]></search>
+            <add position="before" offset="1"><![CDATA[<div class="form-group">
+                <label class="col-sm-2 control-label" for="input-category">{{ entry_main_category }}</label>
+                <div class="col-sm-10">
+                  <select id="main_category_id" name="main_category_id" class="form-control">
+                    <option value="0" selected="selected">{{ text_none }}</option>
+                    {% for category in product_categories %}
+                    {% if category.category_id == main_category_id %}
+                      <option value="{{ category.category_id }}" selected="selected">{{ category.name }}</option>
+                    {% else %}
+                      <option value="{{ category.category_id }}">{{ category.name }}</option>
+                    }
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>]]></add>
+        </operation>
+        <operation error="log">
+            <search><![CDATA[$('#product-category').append('<div id="product-category' + item['value'] + '"><i class="fa fa-minus-circle"></i> ' + item['label'] + '<input type="hidden" name="product_category[]" value="' + item['value'] + '" /></div>');]]></search>
+            <add position="after"><![CDATA[     if ($('#main_category_id option[value="' + item['value'] + '"]').length == 0) {
+            $('#main_category_id').append('<option value="' + item['value'] + '">' + item['label'] + '</option>');
+        }]]></add>
+        </operation>
+        <operation error="log">
+            <search><![CDATA[$('#product-category').delegate('.fa-minus-circle', 'click', function() {]]></search>
+            <add position="after"><![CDATA[    var category_id = $(this).parent().find('input[name="product_category\\[\\]"]').val();
+                $('#main_category_id option[value="' + category_id + '"]').remove();
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/model/catalog/category.php">
+        <operation>
+            <search><![CDATA[$this->cache->delete('category');]]></search>
+            <add position="after"><![CDATA[
+               $this->cache->delete('seo_pro');
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/model/catalog/manufacturer.php">
+        <operation>
+            <search><![CDATA[$this->cache->delete('manufacturer');]]></search>
+            <add position="after"><![CDATA[
+               $this->cache->delete('seo_pro');
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/model/catalog/information.php">
+        <operation>
+            <search><![CDATA[$this->cache->delete('information');]]></search>
+            <add position="after"><![CDATA[
+               $this->cache->delete('seo_pro');
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="catalog/view/theme/*/template/checkout/cart.twig">
+        <operation>
+            <search><![CDATA[onclick="cart.remove('{{ product.cart_id }}');"]]></search>
+            <add position="replace"><![CDATA[onclick="cart.remove('{{ product.cart_id }}');location.reload();"]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[onclick="voucher.remove('{{ voucher.key }}');"]]></search>
+            <add position="replace"><![CDATA[onclick="voucher.remove('{{ voucher.key }}');location.reload();"]]></add>
+        </operation>
+    </file> 
+
+</modification>
