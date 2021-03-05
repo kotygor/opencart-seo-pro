@@ -1,12 +1,13 @@
 {
 	"name": "kotygor/opencart-seo-pro",
 	"description": "SEO url module for opencart",
+	"type": "opencart-extension",
 	"extra": {
 		"src-dir": "upload",
 		"mappings": [
 			"catalog/controller/startup/seo_pro.php"
 		],
-		"installers": {
+		"installers":{
 			"xml": "install.xml"
 		}
 	},
