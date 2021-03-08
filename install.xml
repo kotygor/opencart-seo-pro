@@ -23,7 +23,6 @@
 			<add position="replace"><![CDATA['startup/'.$seo_type]]></add>
 		</operation>
 	</file>
-
     <file path="admin/controller/setting/setting.php">
         <operation error="log">
             <search><![CDATA[
@@ -60,7 +59,6 @@
             ]]></add>
         </operation>
     </file>
-
     <file path="admin/language/en-gb/setting/setting.php">
         <operation>
             <search><![CDATA[$_['entry_meta_title']]]></search>
@@ -75,7 +73,6 @@
             ]]></add>
         </operation>
     </file>
-
     <file path="admin/language/ru-ru/setting/setting.php">
         <operation>
             <search><![CDATA[$_['entry_meta_title']]]></search>
@@ -90,7 +87,6 @@
             ]]></add>
         </operation>
     </file>
-
     <file path="admin/view/template/setting/setting.twig">
         <operation error="log">
             <search><![CDATA[
@@ -144,7 +140,6 @@
             ]]></add>
         </operation>
     </file>
-
     <file path="admin/controller/catalog/product.php">
         <operation error="log">
             <search><![CDATA[$data['product_categories'] = array();]]></search>
@@ -159,21 +154,18 @@
             ]]></add>
         </operation>
     </file>
-
     <file path="admin/language/en-gb/catalog/product.php">
         <operation>
             <search><![CDATA[$_['entry_name']]]></search>
             <add position="after"><![CDATA[$_['entry_main_category']    = 'Main category:';]]></add>
         </operation>
     </file>
-
     <file path="admin/language/ru-ru/catalog/product.php">
         <operation>
             <search><![CDATA[$_['entry_name']]]></search>
             <add position="after"><![CDATA[$_['entry_main_category']    = 'Главная категория:';]]></add>
         </operation>
     </file>
-
     <file path="admin/model/catalog/product.php">
         <operation error="log">
             <search><![CDATA[if (isset($data['product_related'])) {]]></search>
@@ -201,7 +193,6 @@
             ]]></add>
         </operation>
     </file>
-
     <file path="admin/view/template/catalog/product_form.twig">
         <operation error="log">
             <search><![CDATA[<label class="col-sm-2 control-label" for="input-category"><span data-toggle="tooltip" title="{{ help_category }}">{{ entry_category }}</span></label>]]></search>
@@ -235,7 +226,6 @@
             ]]></add>
         </operation>
     </file>
-
     <file path="admin/model/catalog/category.php">
         <operation>
             <search><![CDATA[$this->cache->delete('category');]]></search>
@@ -244,7 +234,6 @@
             ]]></add>
         </operation>
     </file>
-
     <file path="admin/model/catalog/manufacturer.php">
         <operation>
             <search><![CDATA[$this->cache->delete('manufacturer');]]></search>
@@ -253,7 +242,6 @@
             ]]></add>
         </operation>
     </file>
-
     <file path="admin/model/catalog/information.php">
         <operation>
             <search><![CDATA[$this->cache->delete('information');]]></search>
@@ -262,7 +250,6 @@
             ]]></add>
         </operation>
     </file>
-
     <file path="catalog/view/theme/*/template/checkout/cart.twig">
         <operation>
             <search><![CDATA[onclick="cart.remove('{{ product.cart_id }}');"]]></search>
@@ -272,6 +259,62 @@
             <search><![CDATA[onclick="voucher.remove('{{ voucher.key }}');"]]></search>
             <add position="replace"><![CDATA[onclick="voucher.remove('{{ voucher.key }}');location.reload();"]]></add>
         </operation>
-    </file> 
+    </file>
+
+    <!-- Код мови в url -->
+    <file path="catalog/controller/startup/seo_pro.php">
+        <operation>
+            <search>
+                <![CDATA[// Decode URL]]>
+            </search>
+            <add position="after">
+                <![CDATA[
+        // << kotygor_opencart_seopro.ocmod.xml
+        if(isset($this->request->get['_route_'])){
+            $urllanguage = explode('/', trim(utf8_strtolower($this->request->get['_route_']), '/'));
+            $this->load->model('localisation/language');
+            $languages = $this->model_localisation_language->getLanguages();
+            $lang = array();
+
+            foreach($languages as $language){
+                $lang[] = $language['code'];
+            }
+
+            if(isset($urllanguage[0]) && in_array($urllanguage[0], $lang)){
+                if(count($urllanguage) > 1){
+                    $replace_lang = $urllanguage[0]."/";
+                }
+                else {
+                    $replace_lang = $urllanguage[0];
+                }
+                $this->request->get['_route_'] = str_replace($replace_lang, '', $this->request->get['_route_']);
+                if($this->request->get['_route_'] == '' || $this->request->get['_route_'] == '/'){
+                    unset($this->request->get['_route_']);
+                }
+            }
+        }
+        // >> kotygor_opencart_seopro.ocmod.xml
+        ]]>
+            </add>
+        </operation>
+        <operation>
+            <search>
+                <![CDATA[		$seo_url = trim($seo_url, '/');]]>
+            </search>
+            <add position="after">
+                <![CDATA[
+        // << kotygor_opencart_seopro.ocmod.xml
+        $this->load->model('setting/setting');
+
+        $congif_language = $this->config->get('config_language');
+
+        if(isset($this->session->data['language']) && $this->session->data['language'] != $congif_language){
+            $seo_url = $this->session->data['language']."/".$seo_url;
+        }
+        // >> kotygor_opencart_seopro.ocmod.xml
+        ]]>
+            </add>
+        </operation>
+    </file>
 
 </modification>
