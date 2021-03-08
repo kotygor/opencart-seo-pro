@@ -194,6 +194,11 @@ class ControllerStartupSeoPro extends Controller {
 		}
 
 		$queries = array();
+
+		if(!empty($data['language_id'])) {
+			$queries[] = 'language_id=' . $data['language_id'];
+		}
+
 		if(!in_array($route, array('product/search'))) {
 			foreach($data as $key => $value) {
 				switch($key) {

@@ -269,6 +269,7 @@
             </search>
             <add position="after">
                 <![CDATA[
+/*
         // << kotygor_opencart_seopro.ocmod.xml
         if(isset($this->request->get['_route_'])){
             $urllanguage = explode('/', trim(utf8_strtolower($this->request->get['_route_']), '/'));
@@ -294,6 +295,7 @@
             }
         }
         // >> kotygor_opencart_seopro.ocmod.xml
+*/
         ]]>
             </add>
         </operation>
@@ -303,15 +305,17 @@
             </search>
             <add position="after">
                 <![CDATA[
+/*
         // << kotygor_opencart_seopro.ocmod.xml
         $this->load->model('setting/setting');
 
-        $congif_language = $this->config->get('config_language');
+        $config_language = $this->config->get('config_language');
 
-        if(isset($this->session->data['language']) && $this->session->data['language'] != $congif_language){
+        if(isset($this->session->data['language']) && $this->session->data['language'] != $config_language){
             $seo_url = $this->session->data['language']."/".$seo_url;
         }
         // >> kotygor_opencart_seopro.ocmod.xml
+*/
         ]]>
             </add>
         </operation>
