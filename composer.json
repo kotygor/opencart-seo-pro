@@ -11,6 +11,9 @@
 			"xml": "install.xml"
 		}
 	},
+	"require": {
+		"kotygor/opencart_3x_fixes": "dev-master"
+	},
 	"require-dev": {
 		"kotygor/opencart-extension-installer": "dev-master"
 	},
@@ -18,6 +21,10 @@
 		{
 			"type": "git",
 			"url": "https://github.com/kotygor/opencart-extension-installer"
+		},
+		{
+			"type": "git",
+			"url": "https://github.com/kotygor/opencart_3x_fixes"
 		}
 	]
 }
