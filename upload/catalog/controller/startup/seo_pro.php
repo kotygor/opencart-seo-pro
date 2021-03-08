@@ -6,10 +6,36 @@ class ControllerStartupSeoPro extends Controller {
 
 	private $config_language_id;
 
+	// Language in url start
+	private $languages;
+	private $default_language_id;
+	private $lang_slugs = [];
+	// Language in url end
+
 	public function __construct($registry) {
 		parent::__construct($registry);
 		$this->config_store_id = $this->config->get('config_store_id');
 		$this->config_language_id = $this->config->get('config_language_id');
+
+		// Language in url start
+		$this->languages = $this->model_localisation_language->getLanguages();
+		foreach ($this->languages as $code => $lang_data) {
+			$this->lang_slugs[$code] = [
+				'code' =>	$code,
+				'language_id'   =>  $lang_data['language_id'],
+			]; // code теж будемо розпізнавати в урл
+			if(!empty($lang_data['url_code']) && $lang_data['code'] != $this->config_language) { // виключення основної мови із урл і включення url_code
+				$this->lang_slugs[$lang_data['url_code']] = [
+					'code' =>	$code,
+					'language_id'   =>  $lang_data['language_id'],
+				];
+			}
+			else {
+				$this->default_language_id = $lang_data['language_id'];
+			}
+		}
+		// Language in URL end
+
 		$this->cache_data = $this->cache->get('seo_pro.'.(int)$this->config->get('config_store_id').".".(int)$this->config->get('config_language_id'));
 		if (!$this->cache_data) {
 			$query = $this->db->query("SELECT LOWER(`keyword`) as 'keyword', `query` FROM " . DB_PREFIX . "seo_url WHERE store_id='".(int)$this->config_store_id."' AND language_id = '".(int)$this->config_language_id."' ORDER BY seo_url_id");
@@ -44,6 +70,25 @@ class ControllerStartupSeoPro extends Controller {
 			$parts = explode('/', trim(utf8_strtolower($route), '/'));
 			list($last_part) = explode('.', array_pop($parts));
 			array_push($parts, $last_part);
+
+			// Language in URL check start
+			if(!empty($this->lang_slugs[$parts[0]])) {
+				// В урл задано префікс мови
+				// Задати значення сесії
+				$this->request->get['language_id']
+					= $this->config_language_id
+					= $this->lang_slugs[$parts[0]]['language_id'];
+				$this->session->data['language'] = $this->lang_slugs[$parts[0]]['code'];
+			}
+			else {
+				// В урл не задано мову - значить вона повинна відповідати мові магазину
+				// задати значення в сесії
+				$this->request->get['language_id']
+					= $this->config_language_id
+					= $this->default_language_id;
+				$this->session->data['language'] = $this->config->get('config_language');
+			}
+			// Language in URL check end
 
 			$rows = array();
 			foreach ($parts as $keyword) {
@@ -116,7 +161,7 @@ class ControllerStartupSeoPro extends Controller {
 	}
 
 	public function rewrite($link) {
-		if ($this->config_store_id != $this->config->get('config_store_id') || $this->config_language_id != $this->config->get('config_language_id')) {
+		if ($this->config_store_id != $this->config->get('config_store_id')) {
 			$this->__construct($this->registry);
 		}
 
@@ -195,9 +240,16 @@ class ControllerStartupSeoPro extends Controller {
 
 		$queries = array();
 
-		if(!empty($data['language_id'])) {
+		// Language in URL start
+		if( $this->config_language_id != $this->default_language_id ) {
 			$queries[] = 'language_id=' . $data['language_id'];
+			unset($data['language_id']);
 		}
+		else {
+			unset($data['language_id']);
+		}
+		// Language in URL end
+
 
 		if(!in_array($route, array('product/search'))) {
 			foreach($data as $key => $value) {
