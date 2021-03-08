@@ -241,7 +241,7 @@ class ControllerStartupSeoPro extends Controller {
 		$queries = array();
 
 		// Language in URL start
-		if( $this->config_language_id != $this->default_language_id ) {
+		if( !empty($data['language_id']) && $this->config_language_id != $this->default_language_id ) {
 			$queries[] = 'language_id=' . $data['language_id'];
 			unset($data['language_id']);
 		}
