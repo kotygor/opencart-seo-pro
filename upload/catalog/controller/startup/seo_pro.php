@@ -27,6 +27,9 @@ class ControllerStartupSeoPro extends Controller {
 				'code' =>	$code,
 				'language_id'   =>  $lang_data['language_id'],
 			]; // code теж будемо розпізнавати в урл
+			$this->lang_slugs[$lang_data['language_id']] = [
+				'code'  =>  $code,
+			];
 			if( $code == $this->default_language) {
 				$this->default_language_id = $lang_data['language_id'];
 			}
@@ -35,6 +38,7 @@ class ControllerStartupSeoPro extends Controller {
 					'code' =>	$code,
 					'language_id'   =>  $lang_data['language_id'],
 				];
+				$this->lang_slugs[$lang_data['language_id']]['url_code'] = $lang_data['url_code'];
 			}
 		}
 		// Language in URL end
@@ -63,7 +67,7 @@ class ControllerStartupSeoPro extends Controller {
 			unset($this->request->get['_route_']);
 			$parts = explode('/', trim(utf8_strtolower($route), '/'));
 			list($last_part) = explode('.', array_pop($parts));
-			array_push($parts, $last_part);
+			if($last_part != 'index') array_push($parts, $last_part);
 
 			// Language in URL check start
 			if(!empty($this->lang_slugs[$parts[0]])) {
@@ -259,17 +263,44 @@ class ControllerStartupSeoPro extends Controller {
 //			unset($data['language_id']);
 //		}
 		// Language in URL end
+//		if(!empty($data['language_id']) && $data['language_id'] != $this->default_language_id) {
+//			$queries[] = 'language_id=' . $data['language_id'];
+//		}
+//		elseif (!empty($data['language_id']) && $data['language_id'] == $this->default_language_id && $this->use_default) {
+//			$queries[] = 'language_id=' . $data['language_id'];
+//		}
+//		elseif ($this->config_language_id != $this->default_language_id) {
+//			$queries[] = 'language_id=' . $this->config_language_id;
+//		}
+//		elseif ($this->use_default) {
+//			$queries[] = 'language_id=' . $this->default_language_id;
+//		}
+//		if(!empty($data['language_id'])) {
+//			unset($data['language_id']);
+//		}
+		$lang_prefix = '';
 		if(!empty($data['language_id']) && $data['language_id'] != $this->default_language_id) {
-			$queries[] = 'language_id=' . $data['language_id'];
+			$lang_prefix = !empty($this->lang_slugs[$data['language_id']]['url_code']) ?
+				$this->lang_slugs[$data['language_id']]['url_code']
+				: $this->lang_slugs[$data['language_id']]['code'];
 		}
 		elseif (!empty($data['language_id']) && $data['language_id'] == $this->default_language_id && $this->use_default) {
-				$queries[] = 'language_id=' . $data['language_id'];
+//			$queries[] = 'language_id=' . $data['language_id'];
+			$lang_prefix = !empty($this->lang_slugs[$data['language_id']]['url_code']) ?
+				$this->lang_slugs[$data['language_id']]['url_code']
+				: $this->lang_slugs[$data['language_id']]['code'];
 			}
 		elseif ($this->config_language_id != $this->default_language_id) {
-				$queries[] = 'language_id=' . $this->config_language_id;
+//			$queries[] = 'language_id=' . $this->config_language_id;
+			$lang_prefix = !empty($this->lang_slugs[$this->config_language_id]['url_code']) ?
+				$this->lang_slugs[$this->config_language_id]['url_code']
+				: $this->lang_slugs[$this->config_language_id]['code'];
 			}
 		elseif ($this->use_default) {
-			$queries[] = 'language_id=' . $this->default_language_id;
+//			$queries[] = 'language_id=' . $this->default_language_id;
+			$lang_prefix = !empty($this->lang_slugs[$this->default_language_id]['url_code']) ?
+				$this->lang_slugs[$this->default_language_id]['url_code']
+				: $this->lang_slugs[$this->default_language_id]['code'];
 		}
 		if(!empty($data['language_id'])) {
 			unset($data['language_id']);
@@ -323,9 +354,17 @@ class ControllerStartupSeoPro extends Controller {
 			}
 		}
 
-		if ($seo_url == '') return $link;
+		if(!empty($lang_prefix)){
+			$link = str_replace('index.php', $lang_prefix . '/index.php', $link);
+		}
+		if ($seo_url == '') return $link; // до цього рядка не можна додавати ніяких префіксів - інакше загубимо всі лінки, які не мають ЧПУ
 
 		$seo_url = trim($seo_url, '/');
+
+		if(!empty($lang_prefix)){
+//			k = str_replace('index.php', $lang_prefix . '/index.php', $link);
+			$seo_url = $lang_prefix . '/' . $seo_url;
+		}
 
 		if ($component['scheme'] == 'https') {
 			$seo_url = $this->config->get('config_ssl') . $seo_url;
