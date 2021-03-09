@@ -290,6 +290,9 @@ class ControllerStartupSeoPro extends Controller {
 				$this->lang_slugs[$data['language_id']]['url_code']
 				: $this->lang_slugs[$data['language_id']]['code'];
 			}
+		elseif (!empty($data['language_id']) && $data['language_id'] == $this->default_language_id && !$this->use_default) {
+			$lang_prefix = '';
+		}
 		elseif ($this->config_language_id != $this->default_language_id) {
 //			$queries[] = 'language_id=' . $this->config_language_id;
 			$lang_prefix = !empty($this->lang_slugs[$this->config_language_id]['url_code']) ?
@@ -301,6 +304,9 @@ class ControllerStartupSeoPro extends Controller {
 			$lang_prefix = !empty($this->lang_slugs[$this->default_language_id]['url_code']) ?
 				$this->lang_slugs[$this->default_language_id]['url_code']
 				: $this->lang_slugs[$this->default_language_id]['code'];
+		}
+		elseif (!$this->use_default) {
+			$lang_prefix = '';
 		}
 		if(!empty($data['language_id'])) {
 			unset($data['language_id']);
