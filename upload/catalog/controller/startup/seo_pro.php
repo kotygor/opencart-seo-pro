@@ -73,9 +73,9 @@ class ControllerStartupSeoPro extends Controller {
 			if(!empty($this->lang_slugs[$parts[0]])) {
 				// В урл задано префікс мови
 				// Задати значення сесії
-				$this->request->get['language_id'] = $this->lang_slugs[$parts[0]]['language_id'];
-				if($this->config_language_id != $this->request->get['language_id']) {
-					$this->config_language_id = $this->request->get['language_id'];
+//				$this->request->get['language_id'] = $this->lang_slugs[$parts[0]]['language_id'];
+				if($this->config_language_id != $this->lang_slugs[$parts[0]]['language_id']) {
+					$this->config_language_id = $this->lang_slugs[$parts[0]]['language_id'];
 					$this->config->set('config_language_id', $this->config_language_id);
 				$this->session->data['language'] = $this->lang_slugs[$parts[0]]['code'];
 					$this->load_cache($this->config_store_id, $this->config_language_id);
