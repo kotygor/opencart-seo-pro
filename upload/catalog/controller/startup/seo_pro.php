@@ -196,6 +196,7 @@ class ControllerStartupSeoPro extends Controller {
 					}
 					$data['product_id'] = $tmp['product_id'];
 					$allowed_parameters = array(
+						'language_id',
 						'product_id', 'tracking',
 						'uri', 'list_type',
 						'gclid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
