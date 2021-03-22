@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <modification>
-    <name>SEO Pro (by opencart3x.ru)</name>
+    <name>SEO Pro (JD-mod)</name>
 	<code>seo_pro</code>
-    <version>1.2</version>
-    <author>opencart3x.ru</author>
-    <link>https://opencart3x.ru</link>
+    <orig_version>1.2</orig_version>
+    <orig_author>opencart3x.ru</orig_author>
+    <orig_link>https://opencart3x.ru</orig_link>
+    <version>1.0</version>
+    <author>JD</author>
+    <link>zelenuj@gmail.com</link>
     
 	<file path="system/config/catalog.php">
 		<operation error="abort">
@@ -12,17 +15,52 @@
                 $_['action_pre_action']
             ]]></search>
 			<add position="before"><![CDATA[
+			// << opencart-seo-pro.ocmod.xml
                 $registry = new Registry(); $db = new DB(DB_DRIVER, DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE); $registry->set('db', $db);
             	$query = $db->query("SELECT value FROM " . DB_PREFIX . "setting WHERE store_id = '0' AND `key`='config_seo_url_type'");
             	$seo_type = $query->row['value'];
             	if (!$seo_type) {  $seo_type = 'seo_url';  }
+            // >> opencart-seo-pro.ocmod.xml
 			]]></add>
 		</operation>
 		<operation error="abort">
 			<search><![CDATA['startup/seo_url']]></search>
-			<add position="replace"><![CDATA['startup/'.$seo_type]]></add>
+			<add position="replace"><![CDATA[
+			// << opencart-seo-pro.ocmod.xml
+			'startup/'.$seo_type
+			// >> opencart-seo-pro.ocmod.xml
+            ]]></add>
 		</operation>
 	</file>
+
+    <!-- Killing Opencart language autodetect! URL define language! -->
+    <file path="catalog/controller/startup/startup.php">
+        <operation>
+            <search><![CDATA[
+            if (isset($this->session->data['language'])) {
+            ]]></search>
+            <add position="replace" offset="42"><![CDATA[
+        // << opencart-seo-pro.ocmod.xml
+        if(!empty($this->request->get['_route_'])) {
+			$lang_code = explode('/', $this->request->get['_route_'])[0];
+			foreach ($languages as $language) {
+				if ($lang_code == $language['code'] || $lang_code == $language['url_code']) {
+					$code = $language['code'];
+					break;
+				}
+			}
+		}
+		else {
+		    $i = 2;
+		}
+
+		if (empty($code) || !array_key_exists($code, $languages)) {
+        // >> opencart-seo-pro.ocmod.xml
+            ]]></add>
+        </operation>
+        
+    </file>
+
     <file path="admin/controller/setting/setting.php">
         <operation error="log">
             <search><![CDATA[
