@@ -240,41 +240,6 @@ class ControllerStartupSeoPro extends Controller {
 
 		$link .= 'index.php?route=' . $route;
 
-		if (count($data)) {
-			$link .= '&amp;' . urldecode(http_build_query($data, '', '&amp;'));
-		}
-
-		$queries = array();
-
-		// Language in URL start
-//		if( $this->config_language_id != $this->default_language_id ) {
-//			if( !empty($data['language_id']) ) {
-//				$queries[] = 'language_id=' . $data['language_id'];
-//				unset($data['language_id']);
-//			}
-//			else {
-//				$queries[] = 'language_id=' . $this->default_language_id;
-//			}
-//		}
-//		else {
-//			unset($data['language_id']);
-//		}
-		// Language in URL end
-//		if(!empty($data['language_id']) && $data['language_id'] != $this->default_language_id) {
-//			$queries[] = 'language_id=' . $data['language_id'];
-//		}
-//		elseif (!empty($data['language_id']) && $data['language_id'] == $this->default_language_id && $this->use_default) {
-//			$queries[] = 'language_id=' . $data['language_id'];
-//		}
-//		elseif ($this->config_language_id != $this->default_language_id) {
-//			$queries[] = 'language_id=' . $this->config_language_id;
-//		}
-//		elseif ($this->use_default) {
-//			$queries[] = 'language_id=' . $this->default_language_id;
-//		}
-//		if(!empty($data['language_id'])) {
-//			unset($data['language_id']);
-//		}
 		$lang_prefix = '';
 		if(!empty($data['language_id']) && $data['language_id'] != $this->default_language_id) {
 			$lang_prefix = !empty($this->lang_slugs[$data['language_id']]['url_code']) ?
@@ -308,6 +273,12 @@ class ControllerStartupSeoPro extends Controller {
 		if(!empty($data['language_id'])) {
 			unset($data['language_id']);
 		}
+
+		if (count($data)) {
+			$link .= '&amp;' . urldecode(http_build_query($data, '', '&amp;'));
+		}
+
+		$queries = array();
 
 		if(!in_array($route, array('product/search'))) {
 			foreach($data as $key => $value) {
