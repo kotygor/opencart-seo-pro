@@ -19,6 +19,7 @@ class ControllerStartupSeoPro extends Controller {
 		$this->config_store_id = $this->config->get('config_store_id');
 		$this->config_language_id = $this->config->get('config_language_id');
 		$this->default_language = $this->config->get('config_language');
+		$this->default_language_id = $this->config->get('default_language_id');
 
 		// Language in url start
 		$this->languages = $this->model_localisation_language->getLanguages();
@@ -30,9 +31,7 @@ class ControllerStartupSeoPro extends Controller {
 			$this->lang_slugs[$lang_data['language_id']] = [
 				'code'  =>  $code,
 			];
-			if( $code == $this->default_language) {
-				$this->default_language_id = $lang_data['language_id'];
-			}
+
 			if(!empty($lang_data['url_code'])) { // виключення основної мови із урл і включення url_code
 				$this->lang_slugs[$lang_data['url_code']] = [
 					'code' =>	$code,
@@ -56,10 +55,6 @@ class ControllerStartupSeoPro extends Controller {
 		}
 
 		// Decode URL
-		if (!isset($this->request->get['_route_']) && !$this->use_default) {
-			$this->request->get['_route_'] = $this->default_language;
-		}
-
 		if (!isset($this->request->get['_route_'])) {
 			$this->validate();
 		} else {
@@ -69,6 +64,7 @@ class ControllerStartupSeoPro extends Controller {
 			list($last_part) = explode('.', array_pop($parts));
 			if($last_part != 'index') array_push($parts, $last_part);
 
+			/* Походу це визначення застаріло від 22-03-2021
 			// Language in URL check start
 			if(!empty($this->lang_slugs[$parts[0]])) {
 				// В урл задано префікс мови
@@ -98,6 +94,7 @@ class ControllerStartupSeoPro extends Controller {
 				}
 			}
 			// Language in URL check end
+			*/
 
 			$rows = array();
 			foreach ($parts as $keyword) {
