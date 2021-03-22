@@ -272,6 +272,10 @@ class ControllerStartupSeoPro extends Controller {
 			$lang_prefix = '';
 		}
 		if(!empty($data['language_id'])) {
+			if($data['language_id'] != $this->config_language_id) {
+				$switch_url_lang = true;
+				$language_id = $data['language_id'];
+			}
 			unset($data['language_id']);
 		}
 
@@ -312,11 +316,19 @@ class ControllerStartupSeoPro extends Controller {
 			$queries[] = $route;
 		}
 
+		if(!empty($switch_url_lang)) {
+			$this->load_cache($this->config_store_id, $language_id);
+		}
+
 		$rows = array();
 		foreach($queries as $query) {
 			if(isset($this->cache_data['queries'][$query])) {
 				$rows[] = array('query' => $query, 'keyword' => $this->cache_data['queries'][$query]);
 			}
+		}
+
+		if(!empty($switch_url_lang)) {
+			$this->load_cache($this->config_store_id, $this->config_language_id);
 		}
 
 		if(count($rows) == count($queries)) {
