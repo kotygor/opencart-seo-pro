@@ -58,7 +58,17 @@
         // >> opencart-seo-pro.ocmod.xml
             ]]></add>
         </operation>
-        
+        <operation>
+            <search><![CDATA[
+            $this->config->set('config_language_id', $languages[$code]['language_id']);
+            ]]></search>
+            <add position="before"><![CDATA[
+        // << opencart-seo-pro.ocmod.xml
+        $this->config->set('default_language_id', $languages[$this->config->get('config_language')]['language_id']);
+        // >> opencart-seo-pro.ocmod.xml
+            ]]></add>
+        </operation>
+
     </file>
 
     <file path="admin/controller/setting/setting.php">
