@@ -1,4 +1,5 @@
 <?php
+// v0.1.0
 class ControllerStartupSeoPro extends Controller {
 	private $cache_data = null;
 

@@ -1,6 +1,7 @@
 {
 	"name": "kotygor/opencart-seo-pro",
 	"description": "SEO url module for opencart",
+	"version": "v0.1.0",
 	"type": "opencart-extension",
 	"extra": {
 		"src-dir": "upload",
@@ -13,7 +14,7 @@
 		}
 	},
 	"require": {
-		"kotygor/opencart_3x_fixes": "dev-master"
+		"kotygor/opencart_3x_fixes": "v0.1"
 	},
 	"require-dev": {
 		"kotygor/opencart-extension-installer": "dev-master"

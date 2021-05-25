@@ -1,4 +1,5 @@
 <?php
+// v0.1.0
 // Розширення для мовної таблиці
 $this->load->model('localisation/language');
 $languages = $this->model_localisation_language->getLanguages();
