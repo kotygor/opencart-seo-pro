@@ -53,7 +53,7 @@
 			if(!empty($this->request->get['_route_'])) {
 				$lang_code = explode('/', $this->request->get['_route_'])[0];
 				foreach ($languages as $language) {
-					if ($lang_code == $language['code'] || $lang_code == $language['url_code']) {
+					if ($lang_code == $language['code'] || (!empty($language['url_code']) && $lang_code == $language['url_code'])) {
 						$code = $language['code'];
 						$this->request->get['_route_'] = substr($this->request->get['_route_'], strlen($lang_code) + 1);
 						break;
