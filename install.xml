@@ -61,7 +61,7 @@
 				}
 			}
 			else {
-				$this->log->write("empty _route_! " . print_r($this->request->get, 1));
+				$this->log->write("empty _route_! {# print_r(\$this->request->get, 1) #}:\r\n" . print_r($this->request->get, 1));
 			}
 		}
 
