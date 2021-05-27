@@ -18,7 +18,7 @@
 			// << opencart-seo-pro.ocmod.xml
                 $registry = new Registry(); $db = new DB(DB_DRIVER, DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE); $registry->set('db', $db);
             	$query = $db->query("SELECT value FROM " . DB_PREFIX . "setting WHERE store_id = '0' AND `key`='config_seo_url_type'");
-            	$seo_type = $query->row['value'];
+            	$seo_type = !empty($query->row['value'])? $query->row['value'] : false;
             	if (!$seo_type) {  $seo_type = 'seo_url';  }
             // >> opencart-seo-pro.ocmod.xml
 			]]></add>
@@ -60,8 +60,8 @@
 					}
 				}
 			}
-			else {
-				$this->log->write("empty _route_! {# print_r(\$this->request->get, 1) #}:\r\n" . print_r($this->request->get, 1));
+			elseif($this->request->get['_route_'] != '') {
+				$this->log->write("empty _route_! In " . str_replace('\\', '/', __FILE__) . "::" . __LINE__ . "\r\n{# print_r(\$this->request->get, 1) #}:\r\n" . print_r($this->request->get, 1));
 			}
 		}
 
