@@ -60,7 +60,7 @@
 					}
 				}
 			}
-			elseif($this->request->get['_route_'] != '') {
+			elseif(isset($this->request->get['_route_']) && $this->request->get['_route_'] != '') {
 				$this->log->write("empty _route_! In " . str_replace('\\', '/', __FILE__) . "::" . __LINE__ . "\r\n{# print_r(\$this->request->get, 1) #}:\r\n" . print_r($this->request->get, 1));
 			}
 		}
