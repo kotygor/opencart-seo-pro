@@ -5,7 +5,7 @@
     <orig_version>1.2</orig_version>
     <orig_author>opencart3x.ru</orig_author>
     <orig_link>https://opencart3x.ru</orig_link>
-    <version>v0.1.5</version>
+    <version>v0.1.7</version>
     <author>JD</author>
     <link>zelenuj@gmail.com</link>
     
@@ -15,20 +15,20 @@
                 $_['action_pre_action']
             ]]></search>
 			<add position="before"><![CDATA[
-			// << opencart-seo-pro.ocmod.xml
+			// << kotygor_opencart_seo_pro.ocmod.xml
                 $registry = new Registry(); $db = new DB(DB_DRIVER, DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE); $registry->set('db', $db);
             	$query = $db->query("SELECT value FROM " . DB_PREFIX . "setting WHERE store_id = '0' AND `key`='config_seo_url_type'");
             	$seo_type = !empty($query->row['value'])? $query->row['value'] : false;
             	if (!$seo_type) {  $seo_type = 'seo_url';  }
-            // >> opencart-seo-pro.ocmod.xml
+            // >> kotygor_opencart_seo_pro.ocmod.xml
 			]]></add>
 		</operation>
 		<operation error="abort">
 			<search><![CDATA['startup/seo_url']]></search>
 			<add position="replace"><![CDATA[
-			// << opencart-seo-pro.ocmod.xml
+			// << kotygor_opencart_seo_pro.ocmod.xml
 			'startup/'.$seo_type
-			// >> opencart-seo-pro.ocmod.xml
+			// >> kotygor_opencart_seo_pro.ocmod.xml
             ]]></add>
 		</operation>
 	</file>
@@ -40,6 +40,7 @@
             if (isset($this->session->data['language'])) {
             ]]></search>
             <add position="replace" offset="42"><![CDATA[
+        // << kotygor_opencart_seo_pro.ocmod.xml
         if (isset($this->request->server['HTTP_X_REQUESTED_WITH']) && strtolower($this->request->server['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
 			if (isset($this->session->data['language'])) {
 				$code = $this->session->data['language'];
@@ -60,14 +61,14 @@
 					}
 				}
 			}
-			elseif(!isset($this->request->get['_route_'])) {
+			elseif(!isset($this->request->get['_route_']) && defined('EXTENDED_LOGGING') && EXTENDED_LOGGING) {
 				$this->log->write("empty _route_! In " . str_replace('\\', '/', __FILE__) . "::" . __LINE__ . "\r\n{# print_r(\$this->request->get, 1) #}:\r\n" . print_r($this->request->get, 1));
 			}
 		}
 
 
 		if (empty($code) || !array_key_exists($code, $languages)) {
-        // >> opencart-seo-pro.ocmod.xml
+        // >> // << kotygor_opencart_seo_pro.ocmod.xml
             ]]></add>
         </operation>
         <operation>
@@ -75,9 +76,9 @@
             $this->config->set('config_language_id', $languages[$code]['language_id']);
             ]]></search>
             <add position="before"><![CDATA[
-        // << opencart-seo-pro.ocmod.xml
+        // << kotygor_opencart_seo_pro.ocmod.xml
         $this->config->set('default_language_id', $languages[$this->config->get('config_language')]['language_id']);
-        // >> opencart-seo-pro.ocmod.xml
+        // >> kotygor_opencart_seo_pro.ocmod.xml
             ]]></add>
         </operation>
 
@@ -89,6 +90,7 @@
                 if (isset($this->request->post['config_file_max_size'])) {
             ]]></search>
             <add position="before"><![CDATA[
+                // << kotygor_opencart_seo_pro.ocmod.xml
                 $qu = $this->db->query("DESCRIBE " . DB_PREFIX . "product_to_category `main_category`");
                 if ($qu->num_rows == 0) {
                     $this->db->query("ALTER TABLE " . DB_PREFIX ."product_to_category ADD `main_category` tinyint(1) COLLATE utf8_general_ci NOT NULL DEFAULT '0' AFTER `category_id`");
@@ -116,6 +118,7 @@
         		} else {
         			$data['config_seo_url_postfix'] = $this->config->get('config_seo_url_postfix');
         		}
+        		// >> kotygor_opencart_seo_pro.ocmod.xml
             ]]></add>
         </operation>
     </file>
@@ -123,13 +126,15 @@
         <operation>
             <search><![CDATA[$_['entry_meta_title']]]></search>
             <add position="before"><![CDATA[
-                $_['text_seo_url']					   = 'Default';
-                $_['text_seo_pro']					   = 'SEO PRO';
-                $_['entry_seo_url_type']			   = 'SEO type:';
-                $_['entry_seo_url_include_path']	   = 'SEO with categories:';
-                $_['entry_seo_url_include_path_help']  = '/category/subcategory/product';
-                $_['entry_seo_url_postfix']			   = 'SEO postfix';
-                $_['entry_seo_url_postfix_help']	   = 'Example as .html';
+// << kotygor_opencart_seo_pro.ocmod.xml
+$_['text_seo_url']					   = 'Default';
+$_['text_seo_pro']					   = 'SEO PRO';
+$_['entry_seo_url_type']			   = 'SEO type:';
+$_['entry_seo_url_include_path']	   = 'SEO with categories:';
+$_['entry_seo_url_include_path_help']  = '/category/subcategory/product';
+$_['entry_seo_url_postfix']			   = 'SEO postfix';
+$_['entry_seo_url_postfix_help']	   = 'Example as .html';
+// >> kotygor_opencart_seo_pro.ocmod.xml
             ]]></add>
         </operation>
     </file>
@@ -137,13 +142,15 @@
         <operation>
             <search><![CDATA[$_['entry_meta_title']]]></search>
             <add position="before"><![CDATA[
-                $_['text_seo_url']					   = 'По умолчанию';
-                $_['text_seo_pro']					   = 'SEO PRO';
-                $_['entry_seo_url_type']			   = 'Тип ЧПУ:';
-                $_['entry_seo_url_include_path']	   = 'ЧПУ товаров с категориями:';
-                $_['entry_seo_url_include_path_help']  = '/category/subcategory/product';
-                $_['entry_seo_url_postfix']			   = 'Окончание ЧПУ';
-                $_['entry_seo_url_postfix_help']	   = 'Например .html';
+// << kotygor_opencart_seo_pro.ocmod.xml
+$_['text_seo_url']					   = 'По умолчанию';
+$_['text_seo_pro']					   = 'SEO PRO';
+$_['entry_seo_url_type']			   = 'Тип ЧПУ:';
+$_['entry_seo_url_include_path']	   = 'ЧПУ товаров с категориями:';
+$_['entry_seo_url_include_path_help']  = '/category/subcategory/product';
+$_['entry_seo_url_postfix']			   = 'Окончание ЧПУ';
+$_['entry_seo_url_postfix_help']	   = 'Например .html';
+// << kotygor_opencart_seo_pro.ocmod.xml
             ]]></add>
         </operation>
     </file>
@@ -153,6 +160,7 @@
                 <label class="col-sm-2 control-label" for="input-robots"><span data-toggle="tooltip" title="{{ help_robots }}">{{ entry_robots }}</span></label>
             ]]></search>
             <add position="before" offset="1"><![CDATA[
+                {# << kotygor_opencart_seo_pro.ocmod.xml #}
                 <div class="form-group">
                   <label class="col-sm-2 control-label" for="config_seo_url_type">{{ entry_seo_url_type }}</label>
                   <div class="col-sm-10">
@@ -197,6 +205,7 @@
                   <input type="text" name="config_seo_url_postfix" value="{{ config_seo_url_postfix }}" id="config_seo_url_postfix" class="form-control"/>
                   </div>
                 </div>
+                {# >> kotygor_opencart_seo_pro.ocmod.xml #}
             ]]></add>
         </operation>
     </file>
@@ -204,6 +213,7 @@
         <operation error="log">
             <search><![CDATA[$data['product_categories'] = array();]]></search>
             <add position="before"><![CDATA[
+            // << kotygor_opencart_seo_pro.ocmod.xml
             if (isset($this->request->post['main_category_id'])) {
                 $data['main_category_id'] = $this->request->post['main_category_id'];
             } elseif (isset($product_info)) {
@@ -211,52 +221,71 @@
             } else {
                 $data['main_category_id'] = 0;
             }
+            // >> kotygor_opencart_seo_pro.ocmod.xml
             ]]></add>
         </operation>
     </file>
     <file path="admin/language/en-gb/catalog/product.php">
         <operation>
             <search><![CDATA[$_['entry_name']]]></search>
-            <add position="after"><![CDATA[$_['entry_main_category']    = 'Main category:';]]></add>
+            <add position="after"><![CDATA[
+// << kotygor_opencart_seo_pro.ocmod.xml
+$_['entry_main_category']    = 'Main category:';
+// >> kotygor_opencart_seo_pro.ocmod.xml
+            ]]></add>
         </operation>
     </file>
     <file path="admin/language/ru-ru/catalog/product.php">
         <operation>
             <search><![CDATA[$_['entry_name']]]></search>
-            <add position="after"><![CDATA[$_['entry_main_category']    = 'Главная категория:';]]></add>
+            <add position="after"><![CDATA[
+// << kotygor_opencart_seo_pro.ocmod.xml
+$_['entry_main_category']    = 'Главная категория:';
+// >> kotygor_opencart_seo_pro.ocmod.xml
+            ]]></add>
         </operation>
     </file>
     <file path="admin/model/catalog/product.php">
         <operation error="log">
             <search><![CDATA[if (isset($data['product_related'])) {]]></search>
-            <add position="before"><![CDATA[        if(isset($data['main_category_id']) && $data['main_category_id'] > 0) {
+            <add position="before"><![CDATA[
+                    // << kotygor_opencart_seo_pro.ocmod.xml
+                    if(isset($data['main_category_id']) && $data['main_category_id'] > 0) {
                         $this->db->query("DELETE FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int)$product_id . "' AND category_id = '" . (int)$data['main_category_id'] . "'");
                         $this->db->query("INSERT INTO " . DB_PREFIX . "product_to_category SET product_id = '" . (int)$product_id . "', category_id = '" . (int)$data['main_category_id'] . "', main_category = 1");
                     } elseif(isset($data['product_category'][0])) {
                         $this->db->query("UPDATE " . DB_PREFIX . "product_to_category SET main_category = 1 WHERE product_id = '" . (int)$product_id . "' AND category_id = '" . (int)$data['product_category'][0] . "'");
-                    }]]></add>
+                    }
+                    // >> kotygor_opencart_seo_pro.ocmod.xml
+            ]]></add>
         </operation>
         <operation error="log">
             <search><![CDATA[public function getProductRelated($product_id) {]]></search>
             <add position="before"><![CDATA[
+                // << kotygor_opencart_seo_pro.ocmod.xml
                 public function getProductMainCategoryId($product_id) {
                     $query = $this->db->query("SELECT category_id FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int)$product_id . "' AND main_category = '1' LIMIT 1");
 
                     return ($query->num_rows ? (int)$query->row['category_id'] : 0);
                 }
+                // >> kotygor_opencart_seo_pro.ocmod.xml
             ]]></add>
         </operation>
         <operation>
             <search><![CDATA[$this->cache->delete('product');]]></search>
             <add position="after"><![CDATA[
-               $this->cache->delete('seo_pro');
+                // << kotygor_opencart_seo_pro.ocmod.xml
+                $this->cache->delete('seo_pro');
+                // >> kotygor_opencart_seo_pro.ocmod.xml
             ]]></add>
         </operation>
     </file>
     <file path="admin/view/template/catalog/product_form.twig">
         <operation error="log">
             <search><![CDATA[<label class="col-sm-2 control-label" for="input-category"><span data-toggle="tooltip" title="{{ help_category }}">{{ entry_category }}</span></label>]]></search>
-            <add position="before" offset="1"><![CDATA[<div class="form-group">
+            <add position="before" offset="1"><![CDATA[
+            {# << kotygor_opencart_seo_pro.ocmod.xml #}
+            <div class="form-group">
                 <label class="col-sm-2 control-label" for="input-category">{{ entry_main_category }}</label>
                 <div class="col-sm-10">
                   <select id="main_category_id" name="main_category_id" class="form-control">
@@ -271,7 +300,9 @@
                     {% endfor %}
                   </select>
                 </div>
-              </div>]]></add>
+              </div>
+            {# >> kotygor_opencart_seo_pro.ocmod.xml #}
+            ]]></add>
         </operation>
         <operation error="log">
             <search><![CDATA[$('#product-category').append('<div id="product-category' + item['value'] + '"><i class="fa fa-minus-circle"></i> ' + item['label'] + '<input type="hidden" name="product_category[]" value="' + item['value'] + '" /></div>');]]></search>
@@ -281,8 +312,11 @@
         </operation>
         <operation error="log">
             <search><![CDATA[$('#product-category').delegate('.fa-minus-circle', 'click', function() {]]></search>
-            <add position="after"><![CDATA[    var category_id = $(this).parent().find('input[name="product_category\\[\\]"]').val();
+            <add position="after"><![CDATA[
+                {# << kotygor_opencart_seo_pro.ocmod.xml #}
+                var category_id = $(this).parent().find('input[name="product_category\\[\\]"]').val();
                 $('#main_category_id option[value="' + category_id + '"]').remove();
+                {# >> kotygor_opencart_seo_pro.ocmod.xml #}
             ]]></add>
         </operation>
     </file>
@@ -290,7 +324,9 @@
         <operation>
             <search><![CDATA[$this->cache->delete('category');]]></search>
             <add position="after"><![CDATA[
+               // << kotygor_opencart_seo_pro.ocmod.xml
                $this->cache->delete('seo_pro');
+               // >> kotygor_opencart_seo_pro.ocmod.xml
             ]]></add>
         </operation>
     </file>
@@ -298,7 +334,9 @@
         <operation>
             <search><![CDATA[$this->cache->delete('manufacturer');]]></search>
             <add position="after"><![CDATA[
-               $this->cache->delete('seo_pro');
+                // << kotygor_opencart_seo_pro.ocmod.xml
+                $this->cache->delete('seo_pro');
+                // >> kotygor_opencart_seo_pro.ocmod.xml
             ]]></add>
         </operation>
     </file>
@@ -306,7 +344,9 @@
         <operation>
             <search><![CDATA[$this->cache->delete('information');]]></search>
             <add position="after"><![CDATA[
+               // << kotygor_opencart_seo_pro.ocmod.xml
                $this->cache->delete('seo_pro');
+               // >> kotygor_opencart_seo_pro.ocmod.xml
             ]]></add>
         </operation>
     </file>
