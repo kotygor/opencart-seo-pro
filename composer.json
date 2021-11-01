@@ -1,7 +1,6 @@
 {
 	"name": "kotygor/opencart-seo-pro",
 	"description": "SEO url module for opencart",
-	"version": "v0.1.7",
 	"type": "opencart-extension",
 	"extra": {
 		"src-dir": "upload",
